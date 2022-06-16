@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-img_path = 'laser_pattern/red11.jpg'
+img_path = 'laser_pattern/blue1.jpg'
 
 
 def empty(a):

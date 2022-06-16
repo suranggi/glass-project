@@ -3,11 +3,6 @@ from pypylon import pylon
 import cv2
 import os
 
-class CameraPos(Enum):
-    first = "first"
-    second = "second"
-    SIDE_120 = "120degree"
-    SIDE_240 = "240degree"
 
 class Camera:
     # scale for imshow window
@@ -47,42 +42,15 @@ class Camera:
 
 
 
-class CameraPair:
-    img_path = "glass_img/"
-
-    def __init__(self, serial_left, serial_right, cam_pos:CameraPos):
-        self.left_camera = Camera(serial_left)
-        self.right_camera = Camera(serial_right)
-        self.camera_position = cam_pos.value
-        self.left_original = None
-        self.right_original = None
-
-    def grabbing_pair_cam(self):
-        left_original, left_resized = self.left_camera.grabbing_cam()
-        right_original, right_resized = self.right_camera.grabbing_cam()
-        self.left_original, self.right_original = left_original, right_original
-        return left_original, left_resized, right_original, right_resized
-
-    def save_image(self,num):
-        cv2.imwrite(f'{CameraPair.img_path}{self.camera_position}/image_L_{num}.jpg', self.left_original)
-        cv2.imwrite(f'{CameraPair.img_path}{self.camera_position}/image_R_{num}.jpg', self.right_original)
-        print(f"Image {num} saved!")
-
-
-camera_dict = {"1":["23643314", "21819175", CameraPos.first],
-               "2":["40156421", "40156409", CameraPos.second],
-               "3":["40118988", "40118977", CameraPos.SIDE_120],
-               "4":["40003776", "40070109", CameraPos.SIDE_240]}
-
 if __name__ == "__main__":
     # Folder path to save image taken (date taken)
-    img_path = "img_19052022\\blue"
+    img_path = "img_08062022\\tes"
     if not os.path.exists(img_path):
         os.mkdir(img_path)
 
     # Camera serial number can be found in the device label S/N
-    # cam = Camera("23643314")
-    cam = Camera("40049922")
+    cam = Camera("23643314")
+    # cam = Camera("40049922")
 
     num = 1
     i = 0
