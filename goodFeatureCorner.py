@@ -4,6 +4,7 @@ import os
 import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
+from CreateBoundingBoxes import annotate_file
 
 
 def ImageResize(img, scale):
@@ -13,11 +14,11 @@ def ImageResize(img, scale):
     img_resized = cv2.resize(img, img_dim, interpolation=cv2.INTER_AREA)
     return img_resized
 
-def MousePoints(event,x,y,flags,params):
-    if event == cv2.EVENT_LBUTTONDOWN:
-        cv2.circle(saved_img,(x,y),5,(0,0,255),cv2.FILLED)
-        point_list.append([x,y])
-        print(point_list)
+# def MousePoints(event,x,y,flags,params):
+#     if event == cv2.EVENT_LBUTTONDOWN:
+#         cv2.circle(saved_img,(x,y),5,(0,0,255),cv2.FILLED)
+#         point_list.append([x,y])
+#         print(point_list)
 
 
 class Camera:
@@ -54,27 +55,6 @@ class Camera:
     def StopGrabbing(self):
         self.camera.StopGrabbing()
 
-    def GetImage(self):
-        while True:
-            img = self.GrabbingCam()
-            if img is None:
-                continue
-
-            cv2.imshow(f'Camera {self.serial}', img)
-            k = cv2.waitKey(1)
-
-            # shortcut to quit windows
-            if k == ord('q') or k == ord('Q'):
-                print(f"Finished capturing image!")
-                self.StopGrabbing()
-                break
-
-            # shortcut to save image
-            if k == ord("s") or k == ord("S"):
-                cv2.imwrite(f'{path}\\{num}.jpg', img)
-                print(f"{num}.jpg image saved!")
-                break
-
 class Image:
     def __init__(self,directory,filename,scale):
         self.dir = directory
@@ -94,17 +74,6 @@ class Image:
 
 
 
-    def ReadImage(self):
-        while True:
-            img = self.img
-            cv2.imshow(f'{self.filename}',img)
-            # cv2.setMouseCallback(f'{self.filename}',self.MousePoints)
-            k = cv2.waitKey(0)
-            if k == ord('d') or k == ord('D'):
-                cv2.destroyWindow(f'{self.filename}')
-                break
-
-
 
 
 
@@ -122,44 +91,29 @@ if __name__ == "__main__":
         li = list(map(int, li))
         num = max(li) + 1  # start from biggest number+1
 
-    file = f'{num}.jpg'
-
+    # define class names
+    class_name_list = ['dot', 'scratch', 'blur', 'cloudy', 'dust', 'other']
 
     while True:
         file = f'{num}.jpg'
-        cam.GetImage()
-        image = Image(path, file, 1)
-        image.ReadImage()
-        num += 1
-        # break
+        img = cam.GrabbingCam()
+        if img is None:
+            continue
 
-        # img = cam.GrabbingCam()
-        # if img is None:
-        #     continue
-        #
-        # cv2.imshow(f'Camera', img)
-        #
-        # k = cv2.waitKey(1)
-        #
-        # # shortcut to quit windows
-        # if k == ord('q') or k == ord('Q'):
-        #     print(f"Finished capturing image!")
-        #     break
+        cv2.imshow(f'Camera {cam.serial}', img)
+        k = cv2.waitKey(1)
 
+        # shortcut to quit windows
+        if k == ord('q') or k == ord('Q'):
+            print(f"Finished capturing image!")
+            cam.StopGrabbing()
+            break
 
-        # # shortcut to save image
-        # if k == ord("s") or k == ord("S"):
-        #     point_list=[]
-        #     cv2.imwrite(f'{path}\\{num}.jpg', img)
-        #     print(f"{num}.jpg image saved!")
-        #     cv2.destroyWindow(f'Camera')
-        #     saved_img = cv2.imread(f'{path}\\{num}.jpg')
-        #     cv2.imshow(f'result {num}.jpg', saved_img)
-        #     cv2.setMouseCallback(f'result {num}.jpg', MousePoints)
-        #     k = cv2.waitKey(0)
-        #     if k == ord('d') or k == ord('D'):
-        #         cv2.destroyWindow(f'result {num}.jpg')
-        #     num += 1
-
+        # shortcut to save image
+        elif k == ord("s") or k == ord("S"):
+            cv2.imwrite(f'{path}\\{num}.jpg', img)
+            print(f"{num}.jpg image saved!")
+            annotate_file(path, file, classNameList=class_name_list)
+            num += 1
 
     cv2.destroyAllWindows()
