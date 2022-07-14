@@ -3,7 +3,6 @@ import cv2
 import os
 import numpy as np
 from pathlib import Path
-import matplotlib.pyplot as plt
 from CreateBoundingBoxes import annotate_file
 
 
@@ -14,19 +13,14 @@ def ImageResize(img, scale):
     img_resized = cv2.resize(img, img_dim, interpolation=cv2.INTER_AREA)
     return img_resized
 
-# def MousePoints(event,x,y,flags,params):
-#     if event == cv2.EVENT_LBUTTONDOWN:
-#         cv2.circle(saved_img,(x,y),5,(0,0,255),cv2.FILLED)
-#         point_list.append([x,y])
-#         print(point_list)
-
 
 class Camera:
-    def __init__(self, serial_number):
+    def __init__(self, serial_number, exp_time=60000.0):
         # camera serial number can be found in the device label S/N
         self.serial = serial_number
         self.camera = self.OpenCam()
         self.converter = self.CreateConverter()
+        self.camera.ExposureTime.SetValue(exp_time)
 
     # connect to camera serial number and grabbing continuously
     def OpenCam(self):
@@ -55,6 +49,7 @@ class Camera:
     def StopGrabbing(self):
         self.camera.StopGrabbing()
 
+
 class Image:
     def __init__(self,directory,filename,scale):
         self.dir = directory
@@ -73,13 +68,14 @@ class Image:
         return img_resized
 
 
-
-
-
-
 if __name__ == "__main__":
-    cam = Camera("23643314")  # set camera serial number
-    path = 'asd\\now'  # set saving directory
+    serial = '40049922'
+    # serial = '23643314'
+    cam = Camera(serial)  # set camera serial number
+    if serial == '40049922':
+        path = '15072022\\grayscale'  # set saving directory grayscale-camera
+    else:
+        path = '15072022\\RGB'  # set saving directory RGB-camera
     Path(path).mkdir(parents=True, exist_ok=True)  # create directory if not exist
 
     # get file number in directory
@@ -99,8 +95,10 @@ if __name__ == "__main__":
         img = cam.GrabbingCam()
         if img is None:
             continue
+        img_resize = ImageResize(img,0.4)
 
-        cv2.imshow(f'Camera {cam.serial}', img)
+        # cv2.imshow(f'Camera {cam.serial}', img)
+        cv2.imshow(f'Camera Resize {cam.serial}', img_resize)
         k = cv2.waitKey(1)
 
         # shortcut to quit windows
